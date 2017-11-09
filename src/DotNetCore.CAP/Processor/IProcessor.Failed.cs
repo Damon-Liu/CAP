@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using DotNetCore.CAP.Abstractions;
 using DotNetCore.CAP.Infrastructure;
-using DotNetCore.CAP.Internal;
 using DotNetCore.CAP.Models;
 using DotNetCore.CAP.Processor.States;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,8 +51,6 @@ namespace DotNetCore.CAP.Processor
                 await Task.WhenAll(
                     ProcessPublishedAsync(connection, context),
                     ProcessReceivedAsync(connection, context));
-
-                DefaultDispatcher.PulseEvent.Set();
 
                 await context.WaitAsync(_waitingInterval);
             }

@@ -6,7 +6,7 @@ namespace DotNetCore.CAP
     internal static class LoggerExtensions
     {
         private static readonly Action<ILogger, int, int, Exception> _serverStarting;
-        private static readonly Action<ILogger, Exception> _serverStartingError;
+        private static readonly Action<ILogger, Exception> _processorsStartingError;
         private static readonly Action<ILogger, Exception> _serverShuttingDown;
         private static readonly Action<ILogger, string, Exception> _expectedOperationCanceledException;
 
@@ -22,6 +22,8 @@ namespace DotNetCore.CAP
         private static readonly Action<ILogger, int, Exception> _jobRetrying;
         private static readonly Action<ILogger, string, Exception> _exceptionOccuredWhileExecutingJob;
 
+        private static readonly Action<ILogger, string, Exception> _messageQueueError;
+
         static LoggerExtensions()
         {
             _serverStarting = LoggerMessage.Define<int, int>(
@@ -29,10 +31,10 @@ namespace DotNetCore.CAP
                 1,
                 "Starting the processing server. Detected {MachineProcessorCount} machine processor(s). Initiating {ProcessorCount} job processor(s).");
 
-            _serverStartingError = LoggerMessage.Define(
+            _processorsStartingError = LoggerMessage.Define(
                 LogLevel.Error,
                 5,
-                "Starting the processing server throw an exception.");
+                "Starting the processors throw an exception.");
 
             _serverShuttingDown = LoggerMessage.Define(
                 LogLevel.Debug,
@@ -93,8 +95,13 @@ namespace DotNetCore.CAP
             _exceptionOccuredWhileExecutingJob = LoggerMessage.Define<string>(
                 LogLevel.Error,
                 6,
-                "An exception occured while trying to execute a job: '{JobId}'. " +
+                "An exception occured while trying to execute a message: '{MessageId}'. " +
                 "Requeuing for another retry.");
+
+            _messageQueueError = LoggerMessage.Define<string>(
+                LogLevel.Error,
+                7,
+                "The MessageQueue Client fires an internal error:'{error}'.");
         }
 
         public static void JobFailed(this ILogger logger, Exception ex)
@@ -142,9 +149,9 @@ namespace DotNetCore.CAP
             _serverStarting(logger, machineProcessorCount, processorCount, null);
         }
 
-        public static void ServerStartedError(this ILogger logger, Exception ex)
+        public static void ProcessorsStartedError(this ILogger logger, Exception ex)
         {
-            _serverStartingError(logger, ex);
+            _processorsStartingError(logger, ex);
         }
 
         public static void ServerShuttingDown(this ILogger logger)
@@ -157,15 +164,20 @@ namespace DotNetCore.CAP
             _expectedOperationCanceledException(logger, ex.Message, ex);
         }
 
-        public static void ExceptionOccuredWhileExecutingJob(this ILogger logger, string jobId, Exception ex)
+        public static void ExceptionOccuredWhileExecuting(this ILogger logger, string messageId, Exception ex)
         {
-            _exceptionOccuredWhileExecutingJob(logger, jobId, ex);
+            _exceptionOccuredWhileExecutingJob(logger, messageId, ex);
         }
 
         public static void ModelBinderFormattingException(this ILogger logger, string methodName, string parameterName,
             string content, Exception ex)
         {
             _modelBinderFormattingException(logger, methodName, parameterName, content, ex);
+        }
+
+        public static void MessageQueueError(this ILogger logger, string error)
+        {
+            _messageQueueError(logger, error, null);
         }
     }
 }

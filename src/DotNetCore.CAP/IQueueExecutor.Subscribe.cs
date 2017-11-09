@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using DotNetCore.CAP.Abstractions;
 using DotNetCore.CAP.Infrastructure;
 using DotNetCore.CAP.Internal;
 using DotNetCore.CAP.Models;
@@ -32,6 +33,13 @@ namespace DotNetCore.CAP
         public async Task<OperateResult> ExecuteAsync(IStorageConnection connection, IFetchedMessage fetched)
         {
             var message = await connection.GetReceivedMessageAsync(fetched.MessageId);
+
+            if (message == null)
+            {
+                _logger.LogError($"Can not find mesage at cap received message table, message id:{fetched.MessageId} !!!");
+                return OperateResult.Failed();
+            }
+
             try
             {
                 var sp = Stopwatch.StartNew();
@@ -68,7 +76,7 @@ namespace DotNetCore.CAP
             }
             catch (Exception ex)
             {
-                _logger.ExceptionOccuredWhileExecutingJob(message?.Name, ex);
+                _logger.ExceptionOccuredWhileExecuting(message?.Name, ex);
 
                 fetched.Requeue();
 

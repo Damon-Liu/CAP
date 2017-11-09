@@ -98,14 +98,14 @@ namespace DotNetCore.CAP
                     }
                     catch (Exception e)
                     {
-                        _logger.LogError(e, "Raised an exception when storage received message。 Message：{0}", message);
+                        _logger.LogError(e, "An exception occurred when storage received message. Message:'{0}'.", message);
                         client.Reject();
                     }
                 }
                 Pulse();
             };
 
-            client.OnError += (sender, reason) => { _logger.LogError(reason); };
+            client.OnError += (sender, reason) => { _logger.MessageQueueError(reason); };
         }
 
         private static void StoreMessage(IServiceScope serviceScope, MessageContext messageContext)

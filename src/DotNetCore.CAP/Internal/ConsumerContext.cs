@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace DotNetCore.CAP.Abstractions
+namespace DotNetCore.CAP.Internal
 {
     /// <summary>
     /// A context for consumers, it used to be provider wrapper of method description and received message.
     /// </summary>
-    public class ConsumerContext
+    internal class ConsumerContext
     {
         /// <summary>
         /// create a new instance of  <see cref="ConsumerContext" /> .
@@ -21,11 +21,11 @@ namespace DotNetCore.CAP.Abstractions
         /// <summary>
         /// a descriptor of consumer information need to be performed.
         /// </summary>
-        public ConsumerExecutorDescriptor ConsumerDescriptor { get; set; }
+        public ConsumerExecutorDescriptor ConsumerDescriptor { get; }
 
         /// <summary>
         /// consumer received message.
         /// </summary>
-        public MessageContext DeliverMessage { get; set; }
+        public MessageContext DeliverMessage { get; }
     }
 }

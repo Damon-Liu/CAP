@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,15 +17,20 @@ namespace DotNetCore.CAP
         /// Topic configuration parameters are specified via the "default.topic.config" sub-dictionary config parameter.
         /// </para>
         /// </summary>
-        public readonly IDictionary<string, object> MainConfig;
+        public readonly ConcurrentDictionary<string, object> MainConfig;
 
         private IEnumerable<KeyValuePair<string, object>> _kafkaConfig;
 
 
         public KafkaOptions()
         {
-            MainConfig = new Dictionary<string, object>();
+            MainConfig = new ConcurrentDictionary<string, object>();
         }
+
+        /// <summary>
+        /// Producer connection pool size, default is 10
+        /// </summary>
+        public int ConnectionPoolSize { get; set; } = 10;
 
         /// <summary>
         /// The `bootstrap.servers` item config of <see cref="MainConfig" />.
@@ -45,7 +51,8 @@ namespace DotNetCore.CAP
                 MainConfig["queue.buffering.max.ms"] = "10";
                 MainConfig["socket.blocking.max.ms"] = "10";
                 MainConfig["enable.auto.commit"] = "false";
-
+                MainConfig["log.connection.close"] = "false";
+                
                 _kafkaConfig = MainConfig.AsEnumerable();
             }
             return _kafkaConfig;

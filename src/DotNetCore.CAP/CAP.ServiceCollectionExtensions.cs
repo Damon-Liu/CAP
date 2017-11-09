@@ -32,18 +32,23 @@ namespace Microsoft.Extensions.DependencyInjection
 
             AddSubscribeServices(services);
 
+            //Serializer and model binder
             services.TryAddSingleton<IContentSerializer, JsonContentSerializer>();
+            services.TryAddSingleton<IMessagePacker, DefaultMessagePacker>();
             services.TryAddSingleton<IConsumerServiceSelector, DefaultConsumerServiceSelector>();
             services.TryAddSingleton<IModelBinderFactory, ModelBinderFactory>();
+
+            services.TryAddSingleton<ICallbackMessageSender, CallbackMessageSender>();
             services.TryAddSingleton<IConsumerInvokerFactory, ConsumerInvokerFactory>();
             services.TryAddSingleton<MethodMatcherCache>();
 
+            //Bootstrapper and Processors
             services.AddSingleton<IProcessingServer, ConsumerHandler>();
             services.AddSingleton<IProcessingServer, CapProcessingServer>();
             services.AddSingleton<IBootstrapper, DefaultBootstrapper>();
             services.AddSingleton<IStateChanger, StateChanger>();
 
-            //Processors
+            //Queue's message processor
             services.AddTransient<PublishQueuer>();
             services.AddTransient<SubscribeQueuer>();
             services.AddTransient<FailedProcessor>();
